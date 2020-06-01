@@ -22,8 +22,10 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = SEQUENCE)
     private Long id;
+
     @NotEmpty
     private String text;
+
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "postId", referencedColumnName = "postId")
     private Post post;
