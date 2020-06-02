@@ -1,4 +1,4 @@
-package com.example.springredditclone.models;
+package com.example.springredditclone.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

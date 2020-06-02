@@ -1,4 +1,4 @@
-package com.example.springredditclone.models;
+package com.example.springredditclone.model;
 
 public enum VoteType {
     UPVOTE(1), DOWNVOTE(-1),
