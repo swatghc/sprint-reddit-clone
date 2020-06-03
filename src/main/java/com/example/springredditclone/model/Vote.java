@@ -9,17 +9,16 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.GenerationType.SEQUENCE;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Builder
-
 public class Vote {
     @Id
-    @GeneratedValue(strategy = SEQUENCE)
+    @GeneratedValue(strategy = IDENTITY)
     private Long voteId;
     private VoteType voteType;
     @NotNull
@@ -30,3 +29,4 @@ public class Vote {
     @JoinColumn(name = "userId", referencedColumnName = "userId")
     private User user;
 }
+
