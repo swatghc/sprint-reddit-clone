@@ -1,5 +1,6 @@
 package com.example.springredditclone.service;
 
+import com.example.springredditclone.exception.UsernameNotFoundException;
 import com.example.springredditclone.security.JwtProvider;
 
 
@@ -77,6 +78,9 @@ public class AuthService {
   public AuthenticationResponse login(LoginRequest loginRequest) {
     Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
       loginRequest.getPassword()));
+
+    // Hold security context, determine who is the current user, whether it is verified and what access it has. By default
+    // use Threadlocal strategy to store credentials. When user logout, clean the user credentials on current thread.
     SecurityContextHolder.getContext().setAuthentication(authenticate);
     String authenticationToken = jwtProvider.generateToken(authenticate);
     return new AuthenticationResponse(authenticationToken, loginRequest.getUsername());
@@ -94,5 +98,13 @@ public class AuthService {
     User user = userRepository.findByUsername(username).orElseThrow(() -> new SpringRedditException("User Not Found with id - " + username));
     user.setEnabled(true);
     userRepository.save(user);
+  }
+
+  @Transactional(readOnly = true)
+  User getCurrentUser() {
+    org.springframework.security.core.userdetails.User principal =
+      (org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    return userRepository.findByUsername(principal.getUsername())
+      .orElseThrow(() -> new UsernameNotFoundException("User name not found - " + principal.getUsername()));
   }
 }

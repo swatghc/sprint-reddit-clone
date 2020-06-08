@@ -3,6 +3,7 @@ package com.example.springredditclone.service;
 import com.example.springredditclone.model.User;
 import com.example.springredditclone.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +19,7 @@ import static java.util.Collections.singletonList;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 class  UserDetailsServiceImpl implements UserDetailsService {
   private final UserRepository userRepository;
 
