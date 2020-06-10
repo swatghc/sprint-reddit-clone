@@ -1,7 +1,9 @@
 package com.example.springredditclone.service;
 
 import com.example.springredditclone.dto.SubredditDto;
+import com.example.springredditclone.exception.SpringRedditException;
 import com.example.springredditclone.exception.SubredditNotFoundException;
+import com.example.springredditclone.mapper.SubredditMapper;
 import com.example.springredditclone.model.Subreddit;
 import com.example.springredditclone.repository.SubredditRepository;
 import lombok.AllArgsConstructor;
@@ -21,12 +23,15 @@ import static java.util.stream.Collectors.toList;
 public class SubredditService {
   private final SubredditRepository subredditRepository;
   private final AuthService authService;
+  private final SubredditMapper subredditMapper;
+
 
   @Transactional(readOnly = true)
   public List<SubredditDto> getAll() {
     return subredditRepository.findAll()
       .stream()
-      .map(this::mapToDto)
+//      .map(this::mapToDto)
+      .map(subredditMapper::mapSubredditToDto)
       .collect(toList());
   }
 
@@ -37,17 +42,23 @@ public class SubredditService {
     return subredditDto;
   }
 
-  @Transactional(readOnly = true)
+//  @Transactional(readOnly = true)
+//  public SubredditDto getSubreddit(Long id) {
+//    Subreddit subreddit = subredditRepository.findById(id)
+//      .orElseThrow(() -> new SubredditNotFoundException("Subreddit not found with id -" + id));
+//    return mapToDto(subreddit);
+//  }
+
   public SubredditDto getSubreddit(Long id) {
     Subreddit subreddit = subredditRepository.findById(id)
-      .orElseThrow(() -> new SubredditNotFoundException("Subreddit not found with id -" + id));
-    return mapToDto(subreddit);
+      .orElseThrow(() -> new SpringRedditException("No subreddit found with ID - " + id));
+    return subredditMapper.mapSubredditToDto(subreddit);
   }
 
   private SubredditDto mapToDto(Subreddit subreddit) {
     return SubredditDto.builder().name(subreddit.getName())
       .id(subreddit.getId())
-      .postCount(subreddit.getPosts().size())
+      .numberOfPosts(subreddit.getPosts().size())
       .build();
   }
 
