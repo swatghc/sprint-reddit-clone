@@ -28,7 +28,7 @@ public abstract class PostMapper {
   @Mapping(target = "description", source = "postRequest.description")
   @Mapping(target = "subreddit", source = "subreddit")
   @Mapping(target = "voteCount", constant = "0")
-  public abstract Post map(PostRequest postRequest, Subreddit subreddit, User user);
+  public abstract  Post map(PostRequest postRequest, Subreddit subreddit, User user);
 
   @Mapping(target = "id", source = "postId")
   @Mapping(target = "subredditName", source = "subreddit.name")
