@@ -1,5 +1,6 @@
 package com.example.springredditclone.service;
 
+import com.example.springredditclone.dto.RefreshTokenRequest;
 import com.example.springredditclone.exception.UsernameNotFoundException;
 import com.example.springredditclone.security.JwtProvider;
 
@@ -15,6 +16,7 @@ import com.example.springredditclone.repository.UserRepository;
 import com.example.springredditclone.repository.VerificationTokenRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,6 +43,7 @@ public class AuthService {
   private final VerificationTokenRepository verificationTokenRepository;
   private final MailContentBuilder mailContentBuilder;
   private final MailService mailService;
+  private final RefreshTokenService refreshTokenService;
 
   @Transactional
   public void signup(RegisterRequest registerRequest) {
@@ -82,8 +86,29 @@ public class AuthService {
     // Hold security context, determine who is the current user, whether it is verified and what access it has. By default
     // use Threadlocal strategy to store credentials. When user logout, clean the user credentials on current thread.
     SecurityContextHolder.getContext().setAuthentication(authenticate);
-    String authenticationToken = jwtProvider.generateToken(authenticate);
-    return new AuthenticationResponse(authenticationToken, loginRequest.getUsername());
+    String token = jwtProvider.generateToken(authenticate);
+    return AuthenticationResponse.builder()
+      .authenticationToken(token)
+      .refreshToken(refreshTokenService.generateRefreshToken().getToken())
+      .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
+      .username(loginRequest.getUsername())
+      .build();
+  }
+
+  public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
+    refreshTokenService.validateRefreshToken(refreshTokenRequest.getRefreshToken());
+    String token = jwtProvider.generateTokenWithUserName(refreshTokenRequest.getUsername());
+    return AuthenticationResponse.builder()
+      .authenticationToken(token)
+      .refreshToken(refreshTokenRequest.getRefreshToken())
+      .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
+      .username(refreshTokenRequest.getUsername())
+      .build();
+  }
+
+  public boolean isLoggedIn() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    return !(authentication instanceof AnonymousAuthenticationToken) && authentication.isAuthenticated();
   }
 
   public void verifyAccount(String token) {
