@@ -33,7 +33,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   public void configure(HttpSecurity httpSecurity) throws Exception {
     httpSecurity.csrf().disable()
       .authorizeRequests()
-      .antMatchers("/api/auth/**")
+      .antMatchers(
+        "/api/auth/**",
+        "/api/posts/**",
+        "/api/subreddit/**"
+        )
       .permitAll()
       .antMatchers(HttpMethod.GET, "/api/subreddit")
       .permitAll()
