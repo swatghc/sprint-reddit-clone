@@ -37,7 +37,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         "/api/auth/**",
         "/api/posts/**",
         "/api/subreddit/**",
-        "/api/comments/**"
+        "/api/comments/**",
+        "/api/votes/**"
         )
       .permitAll()
       .antMatchers(HttpMethod.GET, "/api/subreddit")
