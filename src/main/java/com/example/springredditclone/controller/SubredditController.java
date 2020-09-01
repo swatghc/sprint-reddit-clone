@@ -21,7 +21,7 @@ public class SubredditController {
     return subredditService.getAll();
   }
 
-  @GetMapping("/id")
+  @GetMapping("/{id}")
   public SubredditDto getSubreddit(@PathVariable Long id) {
     return subredditService.getSubreddit(id);
   }
